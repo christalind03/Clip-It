@@ -46,9 +46,3 @@ def extract_frames(video_file):
                 pass
 
         frame_count += 1
-
-if __name__ == "__main__":
-    import sys
-
-    video_file = sys.argv[1]
-    extract_frames(video_file)
