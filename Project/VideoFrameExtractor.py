@@ -13,12 +13,8 @@ def retrieve_timestamps_to_save(video_capture, num_frames_to_save):
 
     return timestamps_to_save
 
-def extract_frames(video_file):
-    # Make a folder for the extracted frames if not made already
-    if not os.path.isdir("Extracted Frames"):
-        os.mkdir("Extracted Frames")
-
-    video_capture = cv2.VideoCapture(video_file)
+def extract_frames(file_path, folder_path):
+    video_capture = cv2.VideoCapture(file_path)
     fps = video_capture.get(cv2.CAP_PROP_FPS)
 
     timestamps_to_save = retrieve_timestamps_to_save(video_capture, 0.2) # Save 1 frame every 5 seconds
@@ -38,7 +34,7 @@ def extract_frames(video_file):
             break
 
         if current_timestamp >= closest_timestamp_to_save:
-            cv2.imwrite(os.path.join("Extracted Frames", f"{str(uuid.uuid4())}.jpg"), current_frame)
+            cv2.imwrite(os.path.join(folder_path, f"{str(uuid.uuid4())}.jpg"), current_frame)
 
             try:
                 timestamps_to_save.pop(0)

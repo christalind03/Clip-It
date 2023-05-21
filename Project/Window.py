@@ -1,5 +1,8 @@
 import tkinter
 import customtkinter
+import VideoAnalyzer
+
+import threading
 
 # Define app colors, fonts, and functions
 OFF_WHITE     = "#ece8e1"
@@ -41,6 +44,39 @@ def validate_time_after_input():
     time_after_input.delete(0, len(user_input))
     return False
 
+def analyze_video(file_path, folder_path, has_thread_executed):
+    VideoAnalyzer.analyze(file_path, folder_path)
+    has_thread_executed.set(True)
+
+def clip_it():
+    file_path = file_name.get()
+    folder_path = folder_name.get()
+
+    if file_path != "No file selected" and folder_path != "No folder selected":
+        submit_button.place_forget()
+
+        loading_animation_frame = customtkinter.CTkFrame(main_frame, width=650, height=55, border_width=5, border_color=LIGHT_RED, corner_radius=0, fg_color=DARK_BLUE)
+        loading_animation_frame.place(x=35, y=385)
+
+        loading_animation = customtkinter.CTkProgressBar(loading_animation_frame,
+                                                        width=630, height=35,
+                                                        corner_radius=0,
+                                                        fg_color=DARK_BLUE, progress_color=LIGHT_RED,
+                                                        mode="indeterminate")
+        loading_animation.place(x=10, y=10)
+        loading_animation.start()
+
+        has_thread_executed = tkinter.BooleanVar(app, value=False)
+        thread = threading.Thread(target=analyze_video, args=(file_path, folder_path, has_thread_executed))
+        thread.start()
+
+        submit_button.wait_variable(has_thread_executed)
+
+        loading_animation.destroy()
+        loading_animation_frame.destroy()
+
+        submit_button.place(x=275, y=385)
+
 # -------------------------
 
 # Initial setup
@@ -54,7 +90,7 @@ app.resizable(False, False)
 # -------------------------
 
 # Create "MAIN" frame
-main_frame = customtkinter.CTkFrame(app, width=720, height=500, corner_radius=0,fg_color=DARK_BLUE)
+main_frame = customtkinter.CTkFrame(app, width=720, height=500, corner_radius=0, fg_color=DARK_BLUE)
 main_frame.place(x=0, y=0)
 
 # Create file input boxes
@@ -99,11 +135,12 @@ folder_browse_button = customtkinter.CTkButton(main_frame,
                                                command=select_folder)
 folder_browse_button.place(x=560, y=255)
 
-# Create "Clip It!" button
+# Create "Clip It!" button and loading animation
 submit_button = customtkinter.CTkButton(main_frame, 
                                         width=165, height=65, border_width=0, 
                                         corner_radius=50, fg_color=LIGHT_RED, 
-                                        text="CLIP IT!", text_color=OFF_WHITE, font=("Tungsten Bold", 45))
+                                        text="CLIP IT!", text_color=OFF_WHITE, font=("Tungsten Bold", 45),
+                                        command=clip_it)
 submit_button.place(x=275, y=385)
 
 # -------------------------
