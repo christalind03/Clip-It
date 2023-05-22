@@ -1,3 +1,4 @@
+import os
 import tkinter
 import customtkinter
 import VideoAnalyzer
@@ -15,13 +16,16 @@ MEDIUM_FONT   = ("DIN Next W1G Medium", 16)
 SMALL_FONT    = ("DIN Next W1G Medium", 12)
 
 def select_file():
-    user_file = tkinter.filedialog.askopenfile(filetypes=[("All Video Files", "*.mp4;*.mov;.mkv")]).name
+    user_file = tkinter.filedialog.askopenfile(initialdir=os.path.expanduser("~"), filetypes=[("All Video Files", "*.mp4;*.mov;.mkv")])
     
-    if user_file != None:
-        file_name.set(user_file)
+    try:
+        if user_file.name != None:
+            file_name.set(user_file.name)
+    except AttributeError:
+        pass
 
 def select_folder():
-    user_folder = tkinter.filedialog.askdirectory()
+    user_folder = tkinter.filedialog.askdirectory(initialdir=os.path.expanduser("~"))
 
     if user_folder != None and user_folder != "":
         folder_name.set(user_folder)
@@ -88,7 +92,7 @@ def analyze_video():
         completion_window.resizable(False, False)
 
         completion_title = customtkinter.CTkLabel(completion_window, text="Your video has been clipped!", text_color=OFF_WHITE, font=LARGE_FONT)
-        completion_title.place(x=100, y=60)
+        completion_title.place(x=100, y=55)
 
         completion_button = customtkinter.CTkButton(completion_window,
                                                    width=100, height=45,
@@ -96,7 +100,7 @@ def analyze_video():
                                                    fg_color=LIGHT_RED,
                                                    text="OK", text_color=OFF_WHITE, font=("Tungsten Bold", 35),
                                                    command=completion_window.destroy)
-        completion_button.place(x=175, y=95)   
+        completion_button.place(x=175, y=100)   
 
         completion_window.wm_transient(app)
 
