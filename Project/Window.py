@@ -16,7 +16,10 @@ MEDIUM_FONT   = ("DIN Next W1G Medium", 16)
 SMALL_FONT    = ("DIN Next W1G Medium", 12)
 
 def select_file():
-    user_file = tkinter.filedialog.askopenfile(initialdir=os.path.expanduser("~"), filetypes=[("All Video Files", "*.mp4;*.mov;.mkv")])
+    user_file = tkinter.filedialog.askopenfile(initialdir=os.path.expanduser("~"),
+                                               filetypes=[("MP4 Files", "*.mp4"),
+                                                          ("QuickTime Movie Files", "*.mov"),
+                                                          ("MKV Files", "*.mkv")])
     
     try:
         if user_file.name != None:
