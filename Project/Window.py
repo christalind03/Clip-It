@@ -23,7 +23,7 @@ def select_file():
 def select_folder():
     user_folder = tkinter.filedialog.askdirectory()
 
-    if user_folder != None:
+    if user_folder != None and user_folder != "":
         folder_name.set(user_folder)
 
 def validate_time_before_input():
@@ -44,15 +44,16 @@ def validate_time_after_input():
     time_after_input.delete(0, len(user_input))
     return False
 
-def analyze_video(file_path, folder_path, has_thread_executed):
+def analyze_video_helper(file_path, folder_path, has_thread_executed):
     VideoAnalyzer.analyze(file_path, folder_path)
     has_thread_executed.set(True)
 
-def clip_it():
+def analyze_video():
     file_path = file_name.get()
     folder_path = folder_name.get()
 
     if file_path != "No file selected" and folder_path != "No folder selected":
+        # Setup and start loading bar
         submit_button.place_forget()
 
         loading_animation_frame = customtkinter.CTkFrame(main_frame, width=650, height=55, border_width=5, border_color=LIGHT_RED, corner_radius=0, fg_color=DARK_BLUE)
@@ -66,16 +67,38 @@ def clip_it():
         loading_animation.place(x=10, y=10)
         loading_animation.start()
 
+        # Start the clipping process
         has_thread_executed = tkinter.BooleanVar(app, value=False)
-        thread = threading.Thread(target=analyze_video, args=(file_path, folder_path, has_thread_executed))
-        thread.start()
+        thread = threading.Thread(target=analyze_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
 
+        # After the videos have been clipped...
+        # Delete the loading bar and show the submission button
         submit_button.wait_variable(has_thread_executed)
 
         loading_animation.destroy()
         loading_animation_frame.destroy()
 
         submit_button.place(x=275, y=385)
+
+        # Create completion window
+        completion_window = customtkinter.CTkToplevel(app, fg_color=DARK_BLUE)
+
+        completion_window.title("Clipped It!")
+        completion_window.geometry(f"{450}x{200}")
+        completion_window.resizable(False, False)
+
+        completion_title = customtkinter.CTkLabel(completion_window, text="Your video has been clipped!", text_color=OFF_WHITE, font=LARGE_FONT)
+        completion_title.place(x=100, y=60)
+
+        completion_button = customtkinter.CTkButton(completion_window,
+                                                   width=100, height=45,
+                                                   border_width=0, corner_radius=50,
+                                                   fg_color=LIGHT_RED,
+                                                   text="OK", text_color=OFF_WHITE, font=("Tungsten Bold", 35),
+                                                   command=completion_window.destroy)
+        completion_button.place(x=175, y=95)   
+
+        completion_window.wm_transient(app)
 
 # -------------------------
 
@@ -86,6 +109,10 @@ app = customtkinter.CTk()
 app.title("Clip It!")
 app.geometry(f"{960}x{500}")
 app.resizable(False, False)
+
+# Setup fonts
+customtkinter.FontManager.load_font("Fonts\DIN-Next-W1G-Medium.ttf")
+customtkinter.FontManager.load_font("Fonts\Tungsten-Bold.ttf")
 
 # -------------------------
 
@@ -140,7 +167,7 @@ submit_button = customtkinter.CTkButton(main_frame,
                                         width=165, height=65, border_width=0, 
                                         corner_radius=50, fg_color=LIGHT_RED, 
                                         text="CLIP IT!", text_color=OFF_WHITE, font=("Tungsten Bold", 45),
-                                        command=clip_it)
+                                        command=analyze_video)
 submit_button.place(x=275, y=385)
 
 # -------------------------
