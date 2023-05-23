@@ -184,11 +184,11 @@ options_frame = customtkinter.CTkFrame(app, width=240, height=500, corner_radius
 options_frame.place(x=720, y=0)
 
 options_title = customtkinter.CTkLabel(options_frame, text="Clipping Options", text_color=OFF_WHITE, font=LARGE_FONT) 
-options_title.place(x=53, y=41)
+options_title.place(x=53, y=66)
 
 # Create "Retrieve Timestamps" section
 option_section_one = customtkinter.CTkLabel(options_frame, text="Retrieve Timestamps", text_color=OFF_WHITE, font=MEDIUM_FONT)
-option_section_one.place(x=20, y=105)
+option_section_one.place(x=20, y=116)
 
 checkbox_option_round_start = customtkinter.CTkCheckBox(options_frame, 
                                         width=100, height=18, 
@@ -196,7 +196,7 @@ checkbox_option_round_start = customtkinter.CTkCheckBox(options_frame,
                                         corner_radius=3, 
                                         fg_color=LIGHT_RED, 
                                         text="Round Start", text_color=OFF_WHITE, font=MEDIUM_FONT)
-checkbox_option_round_start.place(x=20, y=139)
+checkbox_option_round_start.place(x=20, y=149)
 
 checkbox_option_spike_plant = customtkinter.CTkCheckBox(options_frame, 
                                           width=100, height=18, 
@@ -204,20 +204,28 @@ checkbox_option_spike_plant = customtkinter.CTkCheckBox(options_frame,
                                           corner_radius=3, 
                                           fg_color=LIGHT_RED, 
                                           text="Spike Plant", text_color=OFF_WHITE, font=MEDIUM_FONT)
-checkbox_option_spike_plant.place(x=20, y=163)
+checkbox_option_spike_plant.place(x=20, y=173)
 
 # Create "Record Events" section
 options_section_two = customtkinter.CTkLabel(options_frame, text="Record Events", text_color=OFF_WHITE, font=MEDIUM_FONT)
-options_section_two.place(x=20, y=211)
+options_section_two.place(x=20, y=222)
 
 radio_option = tkinter.IntVar(value=1)
+radio_option_none = customtkinter.CTkRadioButton(options_frame, 
+                                                  width=115, height=18, 
+                                                  radiobutton_width=12, radiobutton_height=12, 
+                                                  fg_color=LIGHT_RED, 
+                                                  text="None", text_color=OFF_WHITE, font=MEDIUM_FONT,
+                                                  variable=radio_option, value=0)
+radio_option_none.place(x=20, y=255)
+
 radio_option_round = customtkinter.CTkRadioButton(options_frame, 
                                                   width=115, height=18, 
                                                   radiobutton_width=12, radiobutton_height=12, 
                                                   fg_color=LIGHT_RED, 
                                                   text="Entire Round", text_color=OFF_WHITE, font=MEDIUM_FONT,
-                                                  variable=radio_option, value=0)
-radio_option_round.place(x=20, y=245)
+                                                  variable=radio_option, value=1)
+radio_option_round.place(x=20, y=285)
 
 radio_option_kills = customtkinter.CTkRadioButton(options_frame, 
                                                  width=115, height=18, 
@@ -225,8 +233,8 @@ radio_option_kills = customtkinter.CTkRadioButton(options_frame,
                                                  fg_color=LIGHT_RED, 
                                                  text="Kills Only", 
                                                  text_color=OFF_WHITE, font=MEDIUM_FONT,
-                                                 variable=radio_option, value=1)
-radio_option_kills.place(x=20, y=275)
+                                                 variable=radio_option, value=2)
+radio_option_kills.place(x=20, y=315)
 
 record_num_kills_menu = customtkinter.CTkOptionMenu(options_frame, 
                                                     width=55, height=20, 
@@ -235,14 +243,14 @@ record_num_kills_menu = customtkinter.CTkOptionMenu(options_frame,
                                                     dropdown_fg_color=OFF_WHITE, dropdown_text_color=MIDNIGHT_BLUE, 
                                                     values=["1", "2", "3", "4", "5+"], text_color=MIDNIGHT_BLUE, font=MEDIUM_FONT,
                                                     anchor="center")
-record_num_kills_menu.place(x=123, y=274)
+record_num_kills_menu.place(x=123, y=315)
 
 # Create "Advanced" section
 options_label_three = customtkinter.CTkLabel(options_frame, text="Advanced", text_color=OFF_WHITE, font=MEDIUM_FONT)
-options_label_three.place(x=20, y=324)
+options_label_three.place(x=20, y=364)
 
-time_to_clip_before_tooltip = customtkinter.CTkLabel(options_frame, text="Time Clipped Before Events:", text_color=OFF_WHITE, font=SMALL_FONT)
-time_to_clip_before_tooltip.place(x=20, y=354)
+time_to_clip_before_tooltip = customtkinter.CTkLabel(options_frame, text="Time Clipped Before Kills", text_color=OFF_WHITE, font=SMALL_FONT)
+time_to_clip_before_tooltip.place(x=20, y=394)
 
 time_before_input = customtkinter.CTkEntry(options_frame, 
                                            width=35, height=15, 
@@ -252,10 +260,10 @@ time_before_input = customtkinter.CTkEntry(options_frame,
                                            text_color=MIDNIGHT_BLUE, font=SMALL_FONT,
                                            justify="center")
 time_before_input.configure(validate="focus", validatecommand=validate_time_before_input)
-time_before_input.place(x=185, y=353)
+time_before_input.place(x=185, y=399)
 
-time_to_clip_after_tooltip = customtkinter.CTkLabel(options_frame, text="Time Clipped After Events:", text_color=OFF_WHITE, font=SMALL_FONT)
-time_to_clip_after_tooltip.place(x=20, y=380)
+time_to_clip_after_tooltip = customtkinter.CTkLabel(options_frame, text="Time Clipped After Kills", text_color=OFF_WHITE, font=SMALL_FONT)
+time_to_clip_after_tooltip.place(x=20, y=420)
 
 time_after_input = customtkinter.CTkEntry(options_frame,
                                           width=35, height=15,
@@ -265,7 +273,7 @@ time_after_input = customtkinter.CTkEntry(options_frame,
                                           text_color=MIDNIGHT_BLUE, font=SMALL_FONT,
                                           justify="center")
 time_after_input.configure(validate="focus", validatecommand=validate_time_after_input)
-time_after_input.place(x=185, y=380)
+time_after_input.place(x=185, y=425)
 
 # -------------------------
 

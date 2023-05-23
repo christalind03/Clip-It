@@ -13,11 +13,11 @@ def retrieve_timestamps_to_save(video_capture, num_frames_to_save):
 
     return timestamps_to_save
 
-def extract_frames(file_path, folder_path):
+def extract_frames(file_path, folder_path, num_frames_to_save):
     video_capture = cv2.VideoCapture(file_path)
     fps = video_capture.get(cv2.CAP_PROP_FPS)
 
-    timestamps_to_save = retrieve_timestamps_to_save(video_capture, 0.2) # Save 1 frame every 5 seconds
+    timestamps_to_save = retrieve_timestamps_to_save(video_capture, num_frames_to_save)
     frame_count = 0
 
     while True:
