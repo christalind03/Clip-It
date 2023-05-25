@@ -1,52 +1,69 @@
-import numpy
-import uuid
-import cv2
 import os
+import cv2
+import math
+import uuid
+import numpy
+import datetime
 
-def retrieve_timestamps_to_save(video_capture, num_frames_to_save):
-    timestamps_to_save = []
-    video_duration = video_capture.get(cv2.CAP_PROP_FRAME_COUNT) / video_capture.get(cv2.CAP_PROP_FPS)
+from ObjectDetector import ObjectDetector
 
-    # Save all the timestamps to save a frame as specified by the "num_frames_to_save" parameter
-    for iteration in numpy.arange(0, video_duration, 1 / num_frames_to_save):
-        timestamps_to_save.append(iteration)
+class RoundData:
+    def __init__(self):
+        self.round_start = None
+        self.round_end = None
 
-    return timestamps_to_save
+        self.first_kill = None
+        self.recent_kill = (None, None)
 
-def extract_frames(file_path, folder_path, num_frames_to_save):
-    # Make a folder for the extracted frames if not made already
-    if not os.path.isdir(folder_path):
-        os.mkdir(folder_path)
+        self.spike_planted = (None, None)
 
-    video_capture = cv2.VideoCapture(file_path)
-    fps = video_capture.get(cv2.CAP_PROP_FPS)
+class VideoAnalyzer:
+    def __init__(self):
+        self.object_detector = ObjectDetector()
+        self.all_rounds = []
 
-    timestamps_to_save = retrieve_timestamps_to_save(video_capture, num_frames_to_save)
-    frame_count = 0
+    def generate_timestamps_to_save(self, video_capture, num_frames_to_save):
+        timestamps_to_save = []
+        video_duration = video_capture.get(cv2.CAP_PROP_FRAME_COUNT) / video_capture.get(cv2.CAP_PROP_FPS)
 
-    while True:
-        is_read, current_frame = video_capture.read()
+        # Save all the timestamps to save a frame as specified by the "num_frames_to_save" parameter
+        for iteration in numpy.arange(0, video_duration, 1 / num_frames_to_save):
+            timestamps_to_save.append(iteration)
 
-        if not is_read:
-            break
+        return timestamps_to_save
 
-        current_timestamp = frame_count / fps
+    def analyze(self, file_path, folder_path, num_frames_to_save):
+        # Make a folder for the extracted frames if not made already
+        if not os.path.isdir(folder_path):
+            os.mkdir(folder_path)
 
-        try:
-            closest_timestamp_to_save = timestamps_to_save[0]
-        except IndexError:
-            break
+        video_capture = cv2.VideoCapture(file_path)
+        fps = video_capture.get(cv2.CAP_PROP_FPS)
 
-        if current_timestamp >= closest_timestamp_to_save:
-            cv2.imwrite(os.path.join(folder_path, f"{str(uuid.uuid4())}.jpg"), current_frame)
+        timestamps_to_save = self.generate_timestamps_to_save(video_capture, num_frames_to_save)
+        frame_count = 0
+
+        while True:
+            is_read, current_frame = video_capture.read()
+
+            if not is_read:
+                break
 
             try:
-                timestamps_to_save.pop(0)
+                closest_timestamp_to_save = timestamps_to_save[0]
             except IndexError:
-                pass
+                break
 
-        frame_count += 1
+            current_timestamp = frame_count / fps
 
-def analyze(file_path, folder_path):
-    num_frames_to_save = 1
-    VideoFrameExtractor.extract_frames(file_path, folder_path, num_frames_to_save)
+            if current_timestamp >= closest_timestamp_to_save:
+                # cv2.imwrite(os.path.join(folder_path, f"{str(uuid.uuid4())}.jpg"), current_frame)
+                detected_objects = self.object_detector.detect_objects(current_frame)
+                print(detected_objects)
+
+                try:
+                    timestamps_to_save.pop(0)
+                except IndexError:
+                    pass
+
+            frame_count += 1

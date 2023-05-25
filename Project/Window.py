@@ -1,9 +1,9 @@
 import os
 import tkinter
-import customtkinter
-import VideoAnalyzer
-
 import threading
+import customtkinter
+
+from VideoAnalyzer import VideoAnalyzer
 
 # Define app colors, fonts, and functions
 OFF_WHITE     = "#ece8e1"
@@ -17,9 +17,19 @@ SMALL_FONT    = ("DIN Next W1G Medium", 12)
 
 def select_file():
     user_file = tkinter.filedialog.askopenfile(initialdir=os.path.expanduser("~"),
-                                               filetypes=[("MP4 Files", "*.mp4"),
-                                                          ("QuickTime Movie Files", "*.mov"),
-                                                          ("MKV Files", "*.mkv")])
+                                               filetypes=[("All Video Files", "*.asf;*.avi;*.gif;*.m4v;*.mkv;*.mov;*.mp4;*.mpeg;*.mpg;*.ts;*.wmv;*.webm"),
+                                                          ("Advanced Systems Format", "*.asf"),
+                                                          ("Audio Video Interlace", "*.avi"),
+                                                          ("Graphics Interchange Format", "*.gif"),
+                                                          ("MPEG-4 Part 14", "*.m4v"),
+                                                          ("Matroska", "*.mkv"),
+                                                          ("QuickTime File Format", "*.mov"),
+                                                          ("MPEG-4 Part 14", "*.mp4"),
+                                                          ("MPEG-1 Part 2", "*.mpeg"),
+                                                          ("MPEG-1 Part 2", "*.mpg"),
+                                                          ("MPEG Transport Stream", "*.ts"),
+                                                          ("Windows Media Videp", "*.wmv"),
+                                                          ("WebM Project", "*.webm")])
     
     try:
         if user_file.name != None:
@@ -51,10 +61,6 @@ def validate_time_after_input():
     time_after_input.delete(0, len(user_input))
     return False
 
-def analyze_video_helper(file_path, folder_path, has_thread_executed):
-    VideoAnalyzer.analyze(file_path, folder_path)
-    has_thread_executed.set(True)
-
 def analyze_video():
     file_path = file_name.get()
     folder_path = folder_name.get()
@@ -76,8 +82,15 @@ def analyze_video():
 
         # Start the clipping process
         has_thread_executed = tkinter.BooleanVar(app, value=False)
-        thread = threading.Thread(target=analyze_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
 
+        def analyze_video_helper(file_path, folder_path, has_thread_executed):
+            video_analyzer = VideoAnalyzer()
+
+            video_analyzer.analyze(file_path, folder_path, 1)
+            has_thread_executed.set(True)
+
+        thread = threading.Thread(target=analyze_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
+        
         # After the videos have been clipped...
         # Delete the loading bar and show the submission button
         submit_button.wait_variable(has_thread_executed)
@@ -210,7 +223,7 @@ checkbox_option_spike_plant.place(x=20, y=173)
 options_section_two = customtkinter.CTkLabel(options_frame, text="Record Events", text_color=OFF_WHITE, font=MEDIUM_FONT)
 options_section_two.place(x=20, y=222)
 
-radio_option = tkinter.IntVar(value=1)
+radio_option = tkinter.IntVar(value=2)
 radio_option_none = customtkinter.CTkRadioButton(options_frame, 
                                                   width=115, height=18, 
                                                   radiobutton_width=12, radiobutton_height=12, 
@@ -277,5 +290,5 @@ time_after_input.place(x=185, y=425)
 
 # -------------------------
 
-# Deploy app
+# Open app
 app.mainloop()
