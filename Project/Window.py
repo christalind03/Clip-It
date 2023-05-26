@@ -131,8 +131,8 @@ app.geometry(f"{960}x{500}")
 app.resizable(False, False)
 
 # Setup fonts
-customtkinter.FontManager.load_font("Fonts\DIN-Next-W1G-Medium.ttf")
-customtkinter.FontManager.load_font("Fonts\Tungsten-Bold.ttf")
+customtkinter.FontManager.load_font("Fonts/DIN-Next-W1G-Medium.ttf")
+customtkinter.FontManager.load_font("Fonts/Tungsten-Bold.ttf")
 
 # -------------------------
 
