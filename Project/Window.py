@@ -3,7 +3,7 @@ import tkinter
 import threading
 import customtkinter
 
-from VideoAnalyzer import VideoAnalyzer
+from VideoEditor import VideoEditor
 
 # Define app colors, fonts, and functions
 OFF_WHITE     = "#ece8e1"
@@ -65,7 +65,7 @@ def clip_video():
     file_path = file_name.get()
     folder_path = folder_name.get()
 
-    if file_path != "No file selected" and folder_path != "No folder selected":
+    if os.path.exists(file_path) and os.path.exists(folder_path):
         # Setup and start loading bar
         submit_button.place_forget()
 
@@ -84,9 +84,17 @@ def clip_video():
         has_thread_executed = tkinter.BooleanVar(app, value=False)
 
         def clip_video_helper(file_path, folder_path, has_thread_executed):
-            video_analyzer = VideoAnalyzer()
+            video_editor = VideoEditor()
 
-            video_analyzer.analyze(file_path)
+            video_editor.generate_files(file_path, 
+                                        folder_path, 
+                                        checkbox_option_round_start.get(), 
+                                        checkbox_option_spike_plant.get(), 
+                                        radio_option.get(), 
+                                        record_num_kills_menu.get(), 
+                                        time_before_entry.get(), 
+                                        time_after_entry.get())
+            
             has_thread_executed.set(True)
 
         thread = threading.Thread(target=clip_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
@@ -149,8 +157,7 @@ file_input = customtkinter.CTkEntry(main_frame,
                                     width=500, height=45, 
                                     border_width=0, corner_radius=50, 
                                     fg_color=OFF_WHITE, 
-                                    textvariable=file_name, text_color=MIDNIGHT_BLUE, font=LARGE_FONT, 
-                                    state="disabled")
+                                    textvariable=file_name, text_color=MIDNIGHT_BLUE, font=LARGE_FONT)
 file_input.place(x=35, y=90)
 
 file_browse_button = customtkinter.CTkButton(main_frame, 
@@ -170,8 +177,7 @@ folder_input = customtkinter.CTkEntry(main_frame,
                                       width=500, height=45, 
                                       border_width=0, corner_radius=50, 
                                       fg_color=OFF_WHITE, 
-                                      textvariable=folder_name, text_color=MIDNIGHT_BLUE, font=LARGE_FONT, 
-                                      state="disabled")
+                                      textvariable=folder_name, text_color=MIDNIGHT_BLUE, font=LARGE_FONT)
 folder_input.place(x=35, y=255)
 
 folder_browse_button = customtkinter.CTkButton(main_frame, 
@@ -265,28 +271,28 @@ options_label_three.place(x=20, y=364)
 time_to_clip_before_tooltip = customtkinter.CTkLabel(options_frame, text="Time Clipped Before Kills", text_color=OFF_WHITE, font=SMALL_FONT)
 time_to_clip_before_tooltip.place(x=20, y=394)
 
-time_before_input = customtkinter.CTkEntry(options_frame, 
+time_before_input = tkinter.StringVar(options_frame, "5")
+time_before_entry = customtkinter.CTkEntry(options_frame, 
                                            width=35, height=15, 
                                            border_width=0, corner_radius=50,
                                            fg_color=OFF_WHITE,
-                                           placeholder_text="5", placeholder_text_color=MIDNIGHT_BLUE,
-                                           text_color=MIDNIGHT_BLUE, font=SMALL_FONT,
+                                           textvariable=time_before_input, text_color=MIDNIGHT_BLUE, font=SMALL_FONT,
                                            justify="center")
-time_before_input.configure(validate="focus", validatecommand=validate_time_before_input)
-time_before_input.place(x=185, y=399)
+time_before_entry.configure(validate="focus", validatecommand=validate_time_before_input)
+time_before_entry.place(x=185, y=399)
 
 time_to_clip_after_tooltip = customtkinter.CTkLabel(options_frame, text="Time Clipped After Kills", text_color=OFF_WHITE, font=SMALL_FONT)
 time_to_clip_after_tooltip.place(x=20, y=420)
 
-time_after_input = customtkinter.CTkEntry(options_frame,
+time_after_input = tkinter.StringVar(options_frame, "5")
+time_after_entry = customtkinter.CTkEntry(options_frame,
                                           width=35, height=15,
                                           border_width=0, corner_radius=50,
                                           fg_color=OFF_WHITE,
-                                          placeholder_text="5", placeholder_text_color=MIDNIGHT_BLUE,
-                                          text_color=MIDNIGHT_BLUE, font=SMALL_FONT,
+                                          textvariable=time_after_input, text_color=MIDNIGHT_BLUE, font=SMALL_FONT,
                                           justify="center")
-time_after_input.configure(validate="focus", validatecommand=validate_time_after_input)
-time_after_input.place(x=185, y=425)
+time_after_entry.configure(validate="focus", validatecommand=validate_time_after_input)
+time_after_entry.place(x=185, y=425)
 
 # -------------------------
 
