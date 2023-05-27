@@ -27,5 +27,4 @@ class VideoEditor:
         output.run()
 
     def generate_files(self, file_path, folder_path, track_round_start, track_spike_plant, record_event_type, record_min_kills, time_clipped_before, time_clipped_after):
-        all_round_data = self.video_analyzer.analyze(file_path, record_min_kills)
-        print(len(all_round_data))
+        all_round_data = self.video_analyzer.analyze(file_path, int(record_min_kills))
