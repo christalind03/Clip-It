@@ -30,10 +30,10 @@ def select_file():
                                                           ("MPEG Transport Stream", "*.ts"),
                                                           ("Windows Media Videp", "*.wmv"),
                                                           ("WebM Project", "*.webm")])
-    
     try:
         if user_file.name != None:
             file_name.set(user_file.name)
+
     except AttributeError:
         pass
 
@@ -61,7 +61,7 @@ def validate_time_after_input():
     time_after_input.delete(0, len(user_input))
     return False
 
-def analyze_video():
+def clip_video():
     file_path = file_name.get()
     folder_path = folder_name.get()
 
@@ -83,13 +83,13 @@ def analyze_video():
         # Start the clipping process
         has_thread_executed = tkinter.BooleanVar(app, value=False)
 
-        def analyze_video_helper(file_path, folder_path, has_thread_executed):
+        def clip_video_helper(file_path, folder_path, has_thread_executed):
             video_analyzer = VideoAnalyzer()
 
-            video_analyzer.analyze(file_path, folder_path, 1)
+            video_analyzer.analyze(file_path)
             has_thread_executed.set(True)
 
-        thread = threading.Thread(target=analyze_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
+        thread = threading.Thread(target=clip_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
         
         # After the videos have been clipped...
         # Delete the loading bar and show the submission button
@@ -187,7 +187,7 @@ submit_button = customtkinter.CTkButton(main_frame,
                                         width=165, height=65, border_width=0, 
                                         corner_radius=50, fg_color=LIGHT_RED, 
                                         text="CLIP IT!", text_color=OFF_WHITE, font=("Tungsten Bold", 45),
-                                        command=analyze_video)
+                                        command=clip_video)
 submit_button.place(x=275, y=385)
 
 # -------------------------
