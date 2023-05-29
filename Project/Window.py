@@ -1,4 +1,6 @@
 import os
+import time
+import datetime
 import tkinter
 import threading
 import customtkinter
@@ -49,7 +51,7 @@ def validate_time_before_input():
     if str.isdigit(user_input) and (int(user_input) >= 0 and int(user_input) <= 30):
             return True
 
-    time_before_input.delete(0, len(user_input))
+    time_before_input.set(30)
     return False
 
 def validate_time_after_input():
@@ -58,92 +60,121 @@ def validate_time_after_input():
     if str.isdigit(user_input) and (int(user_input) >= 0 and int(user_input) <= 30):
             return True
 
-    time_after_input.delete(0, len(user_input))
+    time_after_input.set(30)
     return False
 
 def clip_video():
     file_path = file_name.get()
     folder_path = folder_name.get()
 
-    if os.path.exists(file_path) and os.path.exists(folder_path):
-        # Setup and start loading bar
-        submit_button.place_forget()
+    is_timestamp_round_start = timestamp_round_start.get()
+    is_timestamp_spike_plant = timestamp_round_start.get()
+    event_clipping_option = radio_option.get()
 
-        loading_animation_frame = customtkinter.CTkFrame(main_frame, width=650, height=55, border_width=5, border_color=LIGHT_RED, corner_radius=0, fg_color=DARK_BLUE)
-        loading_animation_frame.place(x=35, y=385)
+    if is_timestamp_round_start or is_timestamp_spike_plant or event_clipping_option:
+        if os.path.exists(file_path) and os.path.exists(folder_path):
+            # Setup and start loading bar
+            submit_button.place_forget()
 
-        loading_animation = customtkinter.CTkProgressBar(loading_animation_frame,
-                                                        width=630, height=35,
-                                                        corner_radius=0,
-                                                        fg_color=DARK_BLUE, progress_color=LIGHT_RED,
-                                                        mode="indeterminate")
-        loading_animation.place(x=10, y=10)
-        loading_animation.start()
+            loading_animation_frame = customtkinter.CTkFrame(main_frame, width=650, height=55, border_width=5, border_color=LIGHT_RED, corner_radius=0, fg_color=DARK_BLUE)
+            loading_animation_frame.place(x=35, y=385)
 
-        # Start the clipping process
-        has_thread_executed = tkinter.BooleanVar(app, value=False)
+            loading_animation = customtkinter.CTkProgressBar(loading_animation_frame,
+                                                            width=630, height=35,
+                                                            corner_radius=0,
+                                                            fg_color=DARK_BLUE, progress_color=LIGHT_RED,
+                                                            mode="indeterminate")
+            loading_animation.place(x=10, y=10)
+            loading_animation.start()
 
-        def clip_video_helper(file_path, folder_path, has_thread_executed):
-            video_editor = VideoEditor()
+            # Start the clipping process
+            has_thread_executed = tkinter.BooleanVar(app, value=False)
 
-            video_editor.generate_files(file_path, 
-                                        folder_path, 
-                                        checkbox_option_round_start.get(), 
-                                        checkbox_option_spike_plant.get(), 
-                                        radio_option.get(), 
-                                        record_num_kills_menu.get(), 
-                                        time_before_entry.get(), 
-                                        time_after_entry.get())
+            def clip_video_helper(file_path, folder_path, has_thread_executed):
+                start_time = time.perf_counter()
+                video_editor = VideoEditor()
+
+                video_editor.generate_files(file_path, 
+                                            folder_path, 
+                                            is_timestamp_round_start, 
+                                            is_timestamp_spike_plant, 
+                                            event_clipping_option, 
+                                            int(record_num_kills_menu.get()), 
+                                            int(time_before_entry.get()), 
+                                            int(time_after_entry.get()))
+                
+                has_thread_executed.set(True)
+
+                end_time = time.perf_counter()
+                print(f"Time spent clipping: {datetime.timedelta(seconds=(end_time - start_time))}")
+
+            thread = threading.Thread(target=clip_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
             
-            has_thread_executed.set(True)
+            # After the videos have been clipped...
+            # Delete the loading bar and show the submission button
+            submit_button.wait_variable(has_thread_executed)
 
-        thread = threading.Thread(target=clip_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
-        
-        # After the videos have been clipped...
-        # Delete the loading bar and show the submission button
-        submit_button.wait_variable(has_thread_executed)
+            loading_animation.destroy()
+            loading_animation_frame.destroy()
 
-        loading_animation.destroy()
-        loading_animation_frame.destroy()
+            submit_button.place(x=275, y=385)
 
-        submit_button.place(x=275, y=385)
+            # Create completion window
+            completion_window = customtkinter.CTkToplevel(app, fg_color=DARK_BLUE)
 
-        # Create completion window
-        completion_window = customtkinter.CTkToplevel(app, fg_color=DARK_BLUE)
+            completion_window.title("Clipped It!")
+            completion_window.geometry(f"{450}x{200}")
+            completion_window.resizable(False, False)
 
-        completion_window.title("Clipped It!")
-        completion_window.geometry(f"{450}x{200}")
-        completion_window.resizable(False, False)
+            completion_title = customtkinter.CTkLabel(completion_window, text="Your video has been clipped!", text_color=OFF_WHITE, font=LARGE_FONT)
+            completion_title.place(x=100, y=55)
 
-        completion_title = customtkinter.CTkLabel(completion_window, text="Your video has been clipped!", text_color=OFF_WHITE, font=LARGE_FONT)
-        completion_title.place(x=100, y=55)
+            completion_button = customtkinter.CTkButton(completion_window,
+                                                    width=100, height=45,
+                                                    border_width=0, corner_radius=50,
+                                                    fg_color=LIGHT_RED,
+                                                    text="OK", text_color=OFF_WHITE, font=("Tungsten Bold", 35),
+                                                    command=completion_window.destroy)
+            completion_button.place(x=175, y=100)   
 
-        completion_button = customtkinter.CTkButton(completion_window,
-                                                   width=100, height=45,
-                                                   border_width=0, corner_radius=50,
-                                                   fg_color=LIGHT_RED,
-                                                   text="OK", text_color=OFF_WHITE, font=("Tungsten Bold", 35),
-                                                   command=completion_window.destroy)
-        completion_button.place(x=175, y=100)   
+            completion_window.wm_transient(app)
+        else:
+            # Create error window if there is no file and/or folder path
+            error_window = customtkinter.CTkToplevel(app, fg_color=DARK_BLUE)
 
-        completion_window.wm_transient(app)
+            error_window.title("ERROR!")
+            error_window.geometry(f"{450}x{200}")
+            error_window.resizable(False, False)
+
+            error_title = customtkinter.CTkLabel(error_window, text="ERROR: Invalid file or folder path", text_color=OFF_WHITE, font=LARGE_FONT)
+            error_title.place(x=81, y=55)
+
+            completion_button = customtkinter.CTkButton(error_window,
+                                                    width=100, height=45,
+                                                    border_width=0, corner_radius=50,
+                                                    fg_color=LIGHT_RED,
+                                                    text="OK", text_color=OFF_WHITE, font=("Tungsten Bold", 35),
+                                                    command=error_window.destroy)
+            completion_button.place(x=175, y=100)   
+
+            error_window.wm_transient(app)
     else:
-        # Create error window if there is no file and/or folder path
+        # Create error window if there is nothing to timestamp/clip
         error_window = customtkinter.CTkToplevel(app, fg_color=DARK_BLUE)
 
         error_window.title("ERROR!")
         error_window.geometry(f"{450}x{200}")
         error_window.resizable(False, False)
 
-        completion_title = customtkinter.CTkLabel(error_window, text="ERROR: Invalid file or folder path", text_color=OFF_WHITE, font=LARGE_FONT)
-        completion_title.place(x=81, y=55)
+        error_title = customtkinter.CTkLabel(error_window, text="ERROR: Invalid clipping options", text_color=OFF_WHITE, font=LARGE_FONT)
+        error_title.place(x=88, y=55)
 
         completion_button = customtkinter.CTkButton(error_window,
-                                                   width=100, height=45,
-                                                   border_width=0, corner_radius=50,
-                                                   fg_color=LIGHT_RED,
-                                                   text="OK", text_color=OFF_WHITE, font=("Tungsten Bold", 35),
-                                                   command=error_window.destroy)
+                                                width=100, height=45,
+                                                border_width=0, corner_radius=50,
+                                                fg_color=LIGHT_RED,
+                                                text="OK", text_color=OFF_WHITE, font=("Tungsten Bold", 35),
+                                                command=error_window.destroy)
         completion_button.place(x=175, y=100)   
 
         error_window.wm_transient(app)
@@ -229,33 +260,33 @@ options_title.place(x=53, y=66)
 option_section_one = customtkinter.CTkLabel(options_frame, text="Retrieve Timestamps", text_color=OFF_WHITE, font=MEDIUM_FONT)
 option_section_one.place(x=20, y=116)
 
-checkbox_option_round_start = customtkinter.CTkCheckBox(options_frame, 
+timestamp_round_start = customtkinter.CTkCheckBox(options_frame, 
                                         width=100, height=18, 
                                         checkbox_width=12, checkbox_height=12, 
                                         corner_radius=3, 
                                         fg_color=LIGHT_RED, 
                                         text="Round Start", text_color=OFF_WHITE, font=MEDIUM_FONT)
-checkbox_option_round_start.place(x=20, y=149)
+timestamp_round_start.place(x=20, y=149)
 
-checkbox_option_spike_plant = customtkinter.CTkCheckBox(options_frame, 
+timestamp_spike_plant = customtkinter.CTkCheckBox(options_frame, 
                                           width=100, height=18, 
                                           checkbox_width=12, checkbox_height=12, 
                                           corner_radius=3, 
                                           fg_color=LIGHT_RED, 
                                           text="Spike Plant", text_color=OFF_WHITE, font=MEDIUM_FONT)
-checkbox_option_spike_plant.place(x=20, y=173)
+timestamp_spike_plant.place(x=20, y=173)
 
 # Create "Record Events" section
 options_section_two = customtkinter.CTkLabel(options_frame, text="Record Events", text_color=OFF_WHITE, font=MEDIUM_FONT)
 options_section_two.place(x=20, y=222)
 
-radio_option = tkinter.IntVar(value=2)
+radio_option = tkinter.StringVar(value="KILLS")
 radio_option_none = customtkinter.CTkRadioButton(options_frame, 
                                                   width=115, height=18, 
                                                   radiobutton_width=12, radiobutton_height=12, 
                                                   fg_color=LIGHT_RED, 
                                                   text="None", text_color=OFF_WHITE, font=MEDIUM_FONT,
-                                                  variable=radio_option, value=0)
+                                                  variable=radio_option, value="NONE")
 radio_option_none.place(x=20, y=255)
 
 radio_option_round = customtkinter.CTkRadioButton(options_frame, 
@@ -263,7 +294,7 @@ radio_option_round = customtkinter.CTkRadioButton(options_frame,
                                                   radiobutton_width=12, radiobutton_height=12, 
                                                   fg_color=LIGHT_RED, 
                                                   text="Entire Round", text_color=OFF_WHITE, font=MEDIUM_FONT,
-                                                  variable=radio_option, value=1)
+                                                  variable=radio_option, value="ROUND")
 radio_option_round.place(x=20, y=285)
 
 radio_option_kills = customtkinter.CTkRadioButton(options_frame, 
@@ -272,7 +303,7 @@ radio_option_kills = customtkinter.CTkRadioButton(options_frame,
                                                  fg_color=LIGHT_RED, 
                                                  text="Kills Only", 
                                                  text_color=OFF_WHITE, font=MEDIUM_FONT,
-                                                 variable=radio_option, value=2)
+                                                 variable=radio_option, value="KILLS")
 radio_option_kills.place(x=20, y=315)
 
 record_num_kills_menu = customtkinter.CTkOptionMenu(options_frame, 

@@ -4,12 +4,13 @@ from ultralytics import YOLO
 class RoundData:
     def __init__(self):
         self.round_start = None
-        self.round_end = None
 
         self.first_kill = (False, None)
-        self.recent_kill = None
+        self.recent_kill = (None, None)
 
         self.spike_planted = (False, None)
+        
+        self.round_end = None
 
 class VideoAnalyzer:
     model = YOLO("UI-Detection.pt")
@@ -71,10 +72,10 @@ class VideoAnalyzer:
 
                     if not current_round_data.first_kill[0] and kill_count == 1:
                         current_round_data.first_kill = (True, current_time)
-                        current_round_data.recent_kill = current_time
+                        current_round_data.recent_kill = (kill_count, current_time)
 
                     if kill_count > 1:
-                        current_round_data.recent_kill = current_time
+                        current_round_data.recent_kill = (kill_count, current_time)
 
                 if not current_round_data.spike_planted[0] and "spike-plant" in frame_data:
                     current_round_data.spike_planted = (True, current_time)
