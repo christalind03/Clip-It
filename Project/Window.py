@@ -127,6 +127,26 @@ def clip_video():
         completion_button.place(x=175, y=100)   
 
         completion_window.wm_transient(app)
+    else:
+        # Create error window if there is no file and/or folder path
+        error_window = customtkinter.CTkToplevel(app, fg_color=DARK_BLUE)
+
+        error_window.title("ERROR!")
+        error_window.geometry(f"{450}x{200}")
+        error_window.resizable(False, False)
+
+        completion_title = customtkinter.CTkLabel(error_window, text="ERROR: Invalid file or folder path", text_color=OFF_WHITE, font=LARGE_FONT)
+        completion_title.place(x=81, y=55)
+
+        completion_button = customtkinter.CTkButton(error_window,
+                                                   width=100, height=45,
+                                                   border_width=0, corner_radius=50,
+                                                   fg_color=LIGHT_RED,
+                                                   text="OK", text_color=OFF_WHITE, font=("Tungsten Bold", 35),
+                                                   command=error_window.destroy)
+        completion_button.place(x=175, y=100)   
+
+        error_window.wm_transient(app)
 
 # -------------------------
 

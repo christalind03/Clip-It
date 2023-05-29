@@ -12,7 +12,7 @@ class RoundData:
         self.spike_planted = (False, None)
 
 class VideoAnalyzer:
-    model = YOLO("C:/Users/chris/Downloads/Clip-It/Project/VALORANT-UI-Detector.pt")
+    model = YOLO("UI-Detection.pt")
     all_class_names = model.names
 
     def __init__(self):
@@ -21,29 +21,28 @@ class VideoAnalyzer:
         self.all_round_data = []
 
     def extract_frames(self, file_path):
-        frame_count = 0
         video = cv2.VideoCapture(file_path)
         max_fps = video.get(cv2.CAP_PROP_FPS)
 
-        while True:
-            is_read, current_frame = video.read()
+        frame_count = 0
+        total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
-            if not is_read:
-                break
+        while frame_count < total_frames:
+            is_read, current_frame = video.read()
 
             # Extract the frame once per second
             if frame_count % max_fps == 0:
                 self.all_frames.append(current_frame)
             
             frame_count += 1
+
+        video.release()
     
     def detect_objects(self, frame):
         results = self.model.predict(source=frame)[0]
-        detected_objects = [self.all_class_names[int(class_index)] for class_index in results.boxes.cls]
+        return [self.all_class_names[int(class_index)] for class_index in results.boxes.cls]
 
-        return detected_objects
-
-    def analyze(self, file_path, record_min_kills):
+    def analyze(self, file_path):
         self.extract_frames(file_path)
 
         # Analyze each frame
@@ -70,14 +69,14 @@ class VideoAnalyzer:
                 if kill_type and "spectating" not in frame_data:
                     kill_count = int(kill_type[0][-1])
 
-                    if not current_round_data.first_kill[0] and kill_count == record_min_kills:
+                    if not current_round_data.first_kill[0] and kill_count == 1:
                         current_round_data.first_kill = (True, current_time)
                         current_round_data.recent_kill = current_time
 
-                    if kill_count > record_min_kills:
+                    if kill_count > 1:
                         current_round_data.recent_kill = current_time
 
-                if not current_round_data.spike_planted[0]:
+                if not current_round_data.spike_planted[0] and "spike-plant" in frame_data:
                     current_round_data.spike_planted = (True, current_time)
 
                 if "round-end" in frame_data:
