@@ -1,6 +1,4 @@
 import os
-import time
-import datetime
 import tkinter
 import threading
 import customtkinter
@@ -111,7 +109,6 @@ def clip_video():
             has_thread_executed = tkinter.BooleanVar(app, value=False)
 
             def clip_video_helper(file_path, folder_path, has_thread_executed):
-                start_time = time.perf_counter()
                 video_editor = VideoEditor()
 
                 video_editor.generate_files(file_path, 
@@ -124,9 +121,6 @@ def clip_video():
                                             int(time_after_entry.get()))
                 
                 has_thread_executed.set(True)
-
-                end_time = time.perf_counter()
-                print(f"Time spent clipping: {datetime.timedelta(seconds=(end_time - start_time))}")
 
             thread = threading.Thread(target=clip_video_helper, args=(file_path, folder_path, has_thread_executed)).start()
             
