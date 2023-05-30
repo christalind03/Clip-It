@@ -1,4 +1,5 @@
 import cv2
+import torch
 from ultralytics import YOLO
 
 class RoundData:
@@ -40,7 +41,12 @@ class VideoAnalyzer:
         video.release()
     
     def detect_objects(self, frame):
-        results = self.model.predict(source=frame)[0]
+        if torch.cuda.is_available():
+            results = self.model.predict(source=frame, device="0")[0]
+            
+        else:
+            results = self.model.predict(source=frame, device="cpu")[0]
+            
         return [self.all_class_names[int(class_index)] for class_index in results.boxes.cls]
 
     def analyze(self, file_path):
@@ -70,11 +76,11 @@ class VideoAnalyzer:
                 if kill_type and "spectating" not in frame_data:
                     kill_count = int(kill_type[0][-1])
 
-                    if not current_round_data.first_kill[0] and kill_count == 1:
+                    if not current_round_data.first_kill[0]:
                         current_round_data.first_kill = (True, current_time)
                         current_round_data.recent_kill = (kill_count, current_time)
 
-                    if kill_count > 1:
+                    else:
                         current_round_data.recent_kill = (kill_count, current_time)
 
                 if not current_round_data.spike_planted[0] and "spike-plant" in frame_data:

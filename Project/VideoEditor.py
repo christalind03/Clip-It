@@ -8,15 +8,10 @@ class VideoEditor:
     def __init__(self):
         self.video_analyzer = VideoAnalyzer()
 
-    def trim_video(self, input_file, output_file, start_time, end_time):
+    def trim_video(self, input_stream, output_file, start_time, end_time):
         # If the output file already exists, replace it
         if os.path.exists(output_file):
             os.remove(output_file)
-
-        video_information = ffmpeg.probe(input_file)
-        video_duration = video_information.get("format", {}).get("duration", None)
-
-        input_stream = ffmpeg.input(input_file)
 
         video = input_stream.trim(start=start_time, end=end_time).setpts("PTS-STARTPTS")
         audio = (input_stream.filter_("atrim", start=start_time, end=end_time).filter_("asetpts", "PTS-STARTPTS"))
@@ -46,21 +41,27 @@ class VideoEditor:
             all_timestamps.close()
 
         # Record events via clips
-        if record_event_type == "ROUND":
-            for round_number, round_data in enumerate(all_round_data, start=1):
-                output_flie = os.path.join(folder_path, f"{file_name} - Round {round_number}.mp4")
-                self.trim_video(file_path, output_file, round_data.round_start, round_data.round_end)
+        if record_event_type:
+            # Prepare original video for trimming
+            video_information = ffmpeg.probe(file_path)
+            video_duration = video_information.get("format", {}).get("duration", None)
+            input_stream = ffmpeg.input(file_path)
 
-        if record_event_type == "KILLS":
-            clip_number = 1
+            if record_event_type == "ROUND":
+                for round_number, round_data in enumerate(all_round_data, start=1):
+                    output_flie = os.path.join(folder_path, f"{file_name} - Round {round_number}.mp4")
+                    self.trim_video(input_stream, output_file, round_data.round_start, round_data.round_end)
 
-            for round_data in all_round_data:
-                kill_count = round_data.recent_kill[0]
+            if record_event_type == "KILLS":
+                clip_number = 1
 
-                if kill_count is not None and kill_count >= record_min_kills:
-                    output_file = os.path.join(folder_path, f"{file_name} - Clip {clip_number}.mp4")
-                    start_clip = round_data.first_kill[1] - time_clipped_before
-                    end_clip = round_data.recent_kill[1] + time_clipped_after
+                for round_data in all_round_data:
+                    kill_count = round_data.recent_kill[0]
 
-                    self.trim_video(file_path, output_file, start_clip, end_clip)
-                    clip_number += 1
+                    if kill_count and kill_count >= record_min_kills:
+                        output_file = os.path.join(folder_path, f"{file_name} - Clip {clip_number}.mp4")
+                        start_clip = round_data.first_kill[1] - time_clipped_before
+                        end_clip = round_data.recent_kill[1] + time_clipped_after
+
+                        self.trim_video(input_stream, output_file, start_clip, end_clip)
+                        clip_number += 1

@@ -91,7 +91,7 @@ def clip_video():
     is_recording_spike_plant = record_spike_plant.get()
     event_clipping_option = record_event.get()
 
-    if is_recording_round_start or is_recording_spike_plant or event_clipping_option:
+    if is_recording_round_start or is_recording_spike_plant or event_clipping_option != "NONE":
         if os.path.exists(file_path) and os.path.exists(folder_path):
             # Setup and start loading bar
             submit_button.place_forget()
@@ -116,10 +116,10 @@ def clip_video():
 
                 video_editor.generate_files(file_path, 
                                             folder_path, 
-                                            is_timestamp_round_start, 
-                                            is_timestamp_spike_plant, 
+                                            is_recording_round_start, 
+                                            is_recording_spike_plant, 
                                             event_clipping_option, 
-                                            record_num_kills.get(), 
+                                            int(record_num_kills.get()), 
                                             int(time_before_entry.get()), 
                                             int(time_after_entry.get()))
                 
