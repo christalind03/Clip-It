@@ -172,6 +172,7 @@ app = customtkinter.CTk()
 app.title("Clip It!")
 app.geometry(f"{960}x{500}")
 app.resizable(False, False)
+app.iconbitmap("icon.ico")
 
 # Setup fonts
 customtkinter.FontManager.load_font("Fonts/DIN-Next-W1G-Medium.ttf")
