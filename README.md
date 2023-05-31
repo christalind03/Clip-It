@@ -19,6 +19,9 @@ To download the executable file of Clip It!, follow these steps:
 4. The file will start downloading automatically.
 5. Once the executable file is downloaded, you can run it on your computer to start clipping your insane plays.
 
+# Bug Disclaimer
+Please note that due to the presence of other UI elements throughout the duration of the round, there may be instances where the detection of round start or end events is not accurate. Clip It! relies on visual analysis, and certain UI elements may interfere with the detection process. We are continuously working to improve the accuracy of event recognition in such cases.
+
 # Future Updates
 We are planning to introduce several updates and enhancements to Clip It! in the future. Some of the potential updates include:
 
