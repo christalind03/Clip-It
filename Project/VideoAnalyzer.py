@@ -87,7 +87,8 @@ class VideoAnalyzer:
                     current_round_data.spike_planted = (True, current_time)
 
                 if "round-end" in frame_data:
-                    current_round_data.round_end = current_time
+                    # After the round ends, there are 5 additional seconds to the round
+                    current_round_data.round_end = current_time + 5
 
                     self.all_round_data.append(current_round_data)
                     current_round_data = None
