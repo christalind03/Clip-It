@@ -14,7 +14,7 @@ class RoundData:
         self.round_end = None
 
 class VideoAnalyzer:
-    model = YOLO("UI-Detection.pt")
+    model = YOLO("Models/UI-Detection.pt")
     all_class_names = model.names
 
     def __init__(self):

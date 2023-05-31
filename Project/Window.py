@@ -144,7 +144,7 @@ def clip_video():
         display_popup("ERROR!", "ERROR: Invalid clipping options", (88, 55))
 
 def load_settings():
-    settings_file = open("Settings.txt", "r")
+    settings_file = open("User\Settings.txt", "r")
 
     all_settings = settings_file.read().splitlines()
     configurables = [record_round_start, record_spike_plant, record_event, record_num_kills, time_before_input, time_after_input]
@@ -155,7 +155,7 @@ def load_settings():
     settings_file.close()
 
 def save_settings():
-    settings_file = open("Settings.txt", "w")
+    settings_file = open("User\Settings.txt", "w")
     configurables = [record_round_start, record_spike_plant, record_event, record_num_kills, time_before_input, time_after_input]
 
     for configurable in configurables:
@@ -170,9 +170,9 @@ app = customtkinter.CTk()
 
 # Configure app
 app.title("Clip It!")
+app.iconbitmap("User\Icon.ico")
 app.geometry(f"{960}x{500}")
 app.resizable(False, False)
-app.iconbitmap("icon.ico")
 
 # Setup fonts
 customtkinter.FontManager.load_font("Fonts/DIN-Next-W1G-Medium.ttf")
