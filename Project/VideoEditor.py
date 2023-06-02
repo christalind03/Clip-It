@@ -35,7 +35,7 @@ class VideoEditor:
                 if track_round_start:
                     all_timestamps.write(f"{create_timestamp(round_data.round_start)} - Round {number}\n")
                 
-                if track_spike_plant:
+                if track_spike_plant and round_data.spike_planted[1] is not None:
                     all_timestamps.write(f"{create_timestamp(round_data.spike_planted[1])} - Round {number} Postplant\n")
 
             all_timestamps.close()
